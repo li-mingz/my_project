@@ -1,0 +1,16 @@
+@font-face {
+  font-family: 'Novecentosanswide-Medium';
+  src: url('./Novecentosanswide-Medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Novecentosanswide-UltraBold';
+  src: url('./Novecentosanswide-UltraBold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Oswald-Medium';
+  src: url('./Oswald-Medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Oswald-DemiBold';
+  src: url('./Oswald-DemiBold.woff2') format('woff2');
+}
