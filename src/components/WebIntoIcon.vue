@@ -27,14 +27,14 @@ onMounted(() => {
     position: absolute;
     display: flex;
     justify-content: center;
-    align-content: center;
+    align-items: center;
     width: 100vw;
     height: 100vh;
   }
   #container_box {
     position: relative;
-    width: 50rem;
-    background-color: green;
+    width: 20rem;
+    height: 20rem;
   }
 
 </style>
