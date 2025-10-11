@@ -46,14 +46,13 @@ onMounted(() => {
     transform: translate(-50%, -50%);
     width: 30rem;
     height: 30rem;
-    transition: all 1s ease-in-out;
+    transition: all 1.5s ease-in-out;
   }
   #container_box.container_box_stage_2 {
     /* 定位到左上角 */
     top: 0;
     left: 0;
     transform: translate(0, 0);
-    background-color: bisque;
     width: 10rem;
     height: 10rem;
   }
