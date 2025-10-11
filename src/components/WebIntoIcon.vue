@@ -30,7 +30,7 @@ onMounted(() => {
       setTimeout(() => {
         document.getElementById("container_background").remove();
       }, 2000);
-    }, 1000);
+    }, 1500);
   }, 3000);
 });
 
@@ -51,24 +51,33 @@ const startBackgroundChange = (background) => {
 </script>
 
 <template>
-  <div id="container_background"
-    :class="{ 'container_background_stage_3': stage >= 3 }"
-    :style="{'--background1': background1, '--background2': background2}"></div>
-  <div id="container_box"
-    :class="{ 'container_box_stage_2': stage >= 2 }">
-  </div>
+  
+  <el-menu
+    mode="horizontal"
+    :ellipsis="false"
+  >
+    <div id="container_background"
+      :class="{ 'container_background_stage_3': stage >= 3 }"
+      :style="{'--background1': background1, '--background2': background2}"></div>
+    <div id="container_box"
+      :class="{ 
+        'container_box_stage_2': stage >= 2,
+        'container_box_stage_3': stage >= 3 
+        }">
+    </div>
+  </el-menu>
 </template>
 
 <style scoped>
   #container_background {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    /* 线性渐变：从左上角（0%）到右下角（100%） */
-    /* 第一个颜色：左上角，不透明（alpha=1） */
-    /* 第二个颜色：右下角，完全透明（alpha=0） */
+    /* 线性渐变：从左上角到右下角 */
+    /* 第一个颜色：左上角 */
+    /* 第二个颜色：右下角 */
     background: linear-gradient(to bottom right, 
       rgba(255, 255, 255, var(--background1)),  /* 起始颜色*/
       rgba(255, 255, 255, var(--background2))   /* 结束颜色*/
@@ -76,7 +85,7 @@ const startBackgroundChange = (background) => {
     transition: all 1s ease-in-out;
   }
   #container_box {
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
     /* 居中偏移 */
@@ -86,12 +95,16 @@ const startBackgroundChange = (background) => {
     transition: all 1.5s ease-in-out;
   }
   #container_box.container_box_stage_2 {
+    position: fixed;
     /* 定位到左上角 */
     top: 0;
     left: 0;
-    transform: translate(0, 0);
+    transform: translate(0, -20%);
     width: 10rem;
     height: 10rem;
+  }
+  #container_box.container_box_stage_3 {
+    position: absolute;
   }
 
 </style>
