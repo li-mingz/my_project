@@ -48,11 +48,13 @@ const startBackgroundChange = (background) => {
   // 10ms
   }, 10);
 }
+
 </script>
 
 <template>
   
   <el-menu
+    id="header"
     mode="horizontal"
     :ellipsis="false"
   >
@@ -93,6 +95,8 @@ const startBackgroundChange = (background) => {
     width: 30rem;
     height: 30rem;
     transition: all 1.5s ease-in-out;
+    /* 不响应交互 */
+    pointer-events: none;
   }
   #container_box.container_box_stage_2 {
     position: fixed;
@@ -105,6 +109,9 @@ const startBackgroundChange = (background) => {
   }
   #container_box.container_box_stage_3 {
     position: absolute;
+  }
+  #header {
+    background-image: url(./src/assets/png/header_bg.png);
   }
 
 </style>
