@@ -8,6 +8,8 @@ const stage = ref(0);
 const background1 = ref(1)
 // 右下角角透明度
 const background2 = ref(1)
+// 当前活动Header选项
+const activeIndex = ref('1')
 // 确保DOM挂载后再加载动画
 onMounted(() => {
   Lottie.loadAnimation({
@@ -57,6 +59,7 @@ const startBackgroundChange = (background) => {
     id="header"
     mode="horizontal"
     :ellipsis="false"
+    :default-active="activeIndex"
   >
     <div id="container_background"
       :class="{ 'container_background_stage_3': stage >= 3 }"
@@ -67,6 +70,12 @@ const startBackgroundChange = (background) => {
         'container_box_stage_3': stage >= 3 
         }">
     </div>
+    <el-menu-item index="1">
+      <div>首页</div>
+    </el-menu-item>
+    <el-menu-item index="2">
+      <div>文档</div>
+    </el-menu-item>
   </el-menu>
 </template>
 
@@ -85,6 +94,7 @@ const startBackgroundChange = (background) => {
       rgba(255, 255, 255, var(--background2))   /* 结束颜色*/
     );
     transition: all 1s ease-in-out;
+    z-index: 999;
   }
   #container_box {
     position: fixed;
@@ -97,6 +107,7 @@ const startBackgroundChange = (background) => {
     transition: all 1.5s ease-in-out;
     /* 不响应交互 */
     pointer-events: none;
+    z-index: 999;
   }
   #container_box.container_box_stage_2 {
     position: fixed;
@@ -112,6 +123,13 @@ const startBackgroundChange = (background) => {
   }
   #header {
     background-image: url(./src/assets/png/header_bg.png);
+  }
+  .el-menu--horizontal > .el-menu-item:nth-of-type(1) {
+    margin-left: auto;
+  }
+  .el-menu--horizontal > .el-menu-item > div {
+    font-family: 'SourceHanSansSC-Bold';
+    margin: 3rem;
   }
 
 </style>

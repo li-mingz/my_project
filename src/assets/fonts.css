@@ -14,3 +14,7 @@
   font-family: 'Oswald-DemiBold';
   src: url('./Oswald-DemiBold.woff2') format('woff2');
 }
+@font-face {
+  font-family: 'SourceHanSansSC-Bold';
+  src: url('./SourceHanSansSC-Bold.woff') format('woff');
+}
