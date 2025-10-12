@@ -15,7 +15,7 @@ onMounted(() => {
     renderer: 'svg',
     loop: false,
     autoplay: true,
-    path: './src/assets/lottie/WebIntoIcon.json'
+    path: './src/assets/lottie/IntoAnimation.json'
   });
   // 开始动画序列
   stage.value = 1; // 第一阶段
