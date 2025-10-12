@@ -2,6 +2,7 @@
 <script setup>
 import Lottie from 'lottie-web';
 import { onMounted, ref } from 'vue';
+import PageDocs from './PageDocs.vue';
 // 动画阶段
 const stage = ref(0);
 // 左上角透明度
@@ -51,6 +52,9 @@ const startBackgroundChange = (background) => {
   }, 10);
 }
 
+const headerSelectItem = (key, keyPath) => {
+  activeIndex.value = key;
+}
 </script>
 
 <template>
@@ -60,6 +64,7 @@ const startBackgroundChange = (background) => {
     mode="horizontal"
     :ellipsis="false"
     :default-active="activeIndex"
+    @select="headerSelectItem"
   >
     <div id="container_background"
       :class="{ 'container_background_stage_3': stage >= 3 }"
@@ -84,6 +89,13 @@ const startBackgroundChange = (background) => {
       </a>
     </div>
   </el-menu>
+  <!-- 内容区域：根据activeIndex切换显示 -->
+  <div v-if="activeIndex === '1'">
+    <h2>这是页面1的内容</h2>
+  </div>
+  <div v-if="activeIndex === '2'">
+    <PageDocs/>
+  </div>
 </template>
 
 <style scoped>
