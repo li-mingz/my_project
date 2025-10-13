@@ -6,9 +6,9 @@ const activeIndex = ref('1')
 </script>
 
 <template>
-    <div>
+    <div class="aside-body">
         <el-menu
-            class="leftMenu"
+            class="aside"
             :default-active="activeIndex"
         >
             <el-menu-item index="1">
@@ -22,9 +22,12 @@ const activeIndex = ref('1')
 </template>
 
 <style scoped>
-    .leftMenu {
+    .aside {
         width: 10vw;
-        height: 100vh;
-        background-image: url(./src/assets/png/left_menu_bg.jpg);
+        height: 100%;
+    }
+    .aside-body {
+        height: 100%;
+        display: flex;  /* 内部横向排列 */
     }
 </style>
