@@ -1,7 +1,7 @@
 
 <script setup>
 import Lottie from 'lottie-web';
-import { onMounted, ref } from 'vue';
+import { onMounted, provide, ref } from 'vue';
 import PageDocs from './PageDocs.vue';
 // 动画阶段
 const stage = ref(0);
@@ -11,8 +11,15 @@ const background1 = ref(1)
 const background2 = ref(1)
 // 当前活动Header选项
 const activeIndex = ref('1')
+const headerElement = ref(null)
+// 传递元素对象
+provide('headerElement', headerElement);
 // 确保DOM挂载后再加载动画
 onMounted(() => {
+  
+  if (headerElement.value) {
+    document.documentElement.style.setProperty('--header-height', `${headerElement.value.$el.offsetHeight}px`);
+  }
   Lottie.loadAnimation({
     container: document.getElementById("container_box"),
     renderer: 'svg',
@@ -61,6 +68,7 @@ const headerSelectItem = (key, keyPath) => {
   <div class="main">
     <el-menu
       id="header"
+      ref="headerElement"
       mode="horizontal"
       :ellipsis="false"
       :default-active="activeIndex"
@@ -167,6 +175,10 @@ const headerSelectItem = (key, keyPath) => {
   }
   .body {
     flex: 1; /* 占据Header下方的全部剩余高度 */
+    display: flex;
+  }
+  .body > div {
+    flex: 1;
     display: flex;
   }
 </style>
