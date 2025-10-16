@@ -123,12 +123,16 @@ onMounted(() => {
         flex: 1; 
         display: flex;
         height: calc(100vh - var(--header-height));
+        box-sizing: border-box;
     }
     .markdown-body {
         flex: 9;
         height: 100%;
         overflow: auto; 
         padding: 20px;
-        box-sizing: border-box
+        box-sizing: border-box;
+    }
+    ::v-deep .katex .katex-mathml {
+      position: fixed
     }
 </style>
