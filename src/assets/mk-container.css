@@ -1,0 +1,64 @@
+
+/* 容器基础样式 */
+.hint {
+  padding: 1.2rem 1.5rem;
+  margin: 1.5rem 0;
+  border-radius: 8px;
+  border-left: 4px solid;
+  background-color: #f7fafc;
+  transition: box-shadow 0.2s;
+}
+
+/* 容器悬停效果 */
+.hint:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* 容器标题样式 */
+.hint-title {
+  margin: 0 0 0.8rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: inherit; /* 继承容器主色调 */
+}
+
+/* 容器内文本样式 */
+.hint p, .hint ul {
+  margin: 0;
+  color: #4a5568;
+}
+
+.hint ul {
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.hint li + li {
+  margin-top: 0.3rem;
+}
+
+/* 不同类型容器的颜色配置 */
+.hint-note {
+  border-color: #3182ce; /* 蓝色 - 普通提示 */
+  background-color: #ebf8ff;
+}
+
+.hint-warning {
+  border-color: #ecc94b; /* 黄色 - 警告 */
+  background-color: #fffaf0;
+}
+
+.hint-tip {
+  border-color: #48bb78; /* 绿色 - 技巧 */
+  background-color: #f0fff4;
+}
+
+.hint-danger {
+  border-color: #e53e3e; /* 红色 - 危险 */
+  background-color: #fff5f5;
+}
+
+.hint-info {
+  border-color: #805ad5; /* 紫色 - 信息 */
+  background-color: #faf5ff;
+}

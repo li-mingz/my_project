@@ -9,6 +9,7 @@ import 'highlight.js/styles/default.min.css';
 import 'github-markdown-css/github-markdown.css';
 // 引入 KaTeX 样式（必须，否则公式无法正常显示）
 import 'katex/dist/katex.min.css';
+import '@/assets/mk-container.css'
 // 引入 github-markdown 所需插件
 import checkbox from 'markdown-it-task-lists'; // 任务列表（- [x]）
 import abbr from 'markdown-it-abbr'; // 缩写
@@ -20,6 +21,7 @@ import sub from 'markdown-it-sub'; // 下标（H~2~O）
 import sup from 'markdown-it-sup'; // 上标（2^10^）
 import anchor from 'markdown-it-anchor'; // 标题id生成
 import mk from 'markdown-it-katex'; // 数学公式
+import mkContainer from 'markdown-it-container'; // 自定义容器
 
 // 动态菜单配置
 const menuList = ref([
@@ -52,6 +54,45 @@ const md = markdownit({
 .use(sup)
 .use(anchor)
 .use(mk);
+
+
+/**
+ * 注册自定义容器
+ * @param {string} type - 容器类型（如 note/warning）
+ * @param {string} [marker=':'] - 标记字符（默认 :::）
+ */
+function registerContainer(type, marker = ':') {
+  md.use(mkContainer, type, {
+    marker,
+    // 验证容器语法：支持 "::: type" 或 "::: type 标题"
+    validate: (params) => {
+      const trimmed = params.trim();
+      // 允许无标题（::: note）或带标题（::: note 标题内容）
+      return trimmed === type || trimmed.startsWith(`${type} `);
+    },
+    // 渲染 HTML
+    render: (tokens, idx) => {
+      const token = tokens[idx];
+      const trimmedInfo = token.info.trim();
+      // 提取标题（如果有）："::: note 标题" → "标题"
+      const title = trimmedInfo.replace(`${type} `, '');
+
+      if (token.nesting === 1) {
+        // 开始标签：带标题则渲染 <h4>，否则只渲染容器
+        const titleHtml = title ? `<h4 class="hint-title">${md.utils.escapeHtml(title)}</h4>` : '';
+        return `<div class="hint hint-${type}">\n${titleHtml}`;
+      } else {
+        // 结束标签
+        return `</div>\n`;
+      }
+    }
+  });
+}
+
+// 注册支持的容器类型（可按需扩展）
+const containerTypes = ['note', 'warning', 'tip', 'danger', 'info'];
+containerTypes.forEach(type => registerContainer(type));
+
 
 // 封装Markdown加载方法：接收文件路径，渲染到容器
 const loadMarkdown = (path) => {
