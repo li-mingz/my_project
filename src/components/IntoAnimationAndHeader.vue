@@ -1,7 +1,7 @@
 
 <script setup>
 import Lottie from 'lottie-web';
-import { onMounted, provide, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import PageDocs from './PageDocs.vue';
 // 动画阶段
 const stage = ref(0);
@@ -12,11 +12,8 @@ const background2 = ref(1)
 // 当前活动Header选项
 const activeIndex = ref('1')
 const headerElement = ref(null)
-// 传递元素对象
-provide('headerElement', headerElement);
 // 确保DOM挂载后再加载动画
 onMounted(() => {
-  
   if (headerElement.value) {
     document.documentElement.style.setProperty('--header-height', `${headerElement.value.$el.offsetHeight}px`);
   }
@@ -25,7 +22,7 @@ onMounted(() => {
     renderer: 'svg',
     loop: false,
     autoplay: true,
-    path: './src/assets/lottie/IntoAnimation.json'
+    path: './lottie/IntoAnimation.json'
   });
   // 开始动画序列
   stage.value = 1; // 第一阶段
@@ -42,22 +39,22 @@ onMounted(() => {
       }, 2000);
     }, 1500);
   }, 3000);
+  
+  const startBackgroundChange = (background) => {
+      // 启动定时器
+    const timer = setInterval(() => {
+      // 每次减0.01（处理浮点数精度问题，用toFixed保留2位小数后转数字）
+      background.value = Number((background.value - 0.01).toFixed(2));
+      
+      // 当值≤0时，停止定时器并执行回调
+      if (background.value <= 0) {
+        background.value = 0; // 确保最终值为0
+        clearInterval(timer);
+      }
+    // 10ms
+    }, 10);
+  }
 });
-
-const startBackgroundChange = (background) => {
-    // 启动定时器
-  const timer = setInterval(() => {
-    // 每次减0.01（处理浮点数精度问题，用toFixed保留2位小数后转数字）
-    background.value = Number((background.value - 0.01).toFixed(2));
-    
-    // 当值≤0时，停止定时器并执行回调
-    if (background.value <= 0) {
-      background.value = 0; // 确保最终值为0
-      clearInterval(timer);
-    }
-  // 10ms
-  }, 10);
-}
 
 const headerSelectItem = (key, keyPath) => {
   activeIndex.value = key;
@@ -152,7 +149,7 @@ const headerSelectItem = (key, keyPath) => {
     position: absolute;
   }
   #header {
-    background-image: url(./src/assets/png/header_bg.png);
+    background-image: url(@/assets/png/header_bg.png);
   }
   .el-menu--horizontal > .el-menu-item:nth-of-type(1) {
     margin-left: auto;

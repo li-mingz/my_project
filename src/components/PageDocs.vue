@@ -1,52 +1,48 @@
 <script setup>
-import { ref, onMounted, inject } from 'vue';
-import { marked } from 'marked';
+import { ref, onMounted } from 'vue';
+// 引入 markdown-it 和 highlight.js
+import markdownit from 'markdown-it';
+import hljs from 'highlight.js';
+// 引入 highlight.js 样式
+import 'highlight.js/styles/default.min.css';
+// 引入 github-markdown 样式
+import 'github-markdown-css/github-markdown.css';
 
 // 动态菜单配置
 const menuList = ref([
-  { index: '1', name: '简介', mdPath: 'src/markdown/test.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '3', name: '注意事项', mdPath: '/markdown/notice.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' },
-  { index: '2', name: '内容', mdPath: '/markdown/content.md' }
+  { index: '1', name: '简介', mdPath: './markdown/test.md' },
+  { index: '2', name: '内容', mdPath: './markdown/test2.md' },
+  { index: '3', name: '注意事项', mdPath: './markdown/notice.md' }
 ]);
 
 // 当前激活的菜单索引
 const activeIndex = ref(menuList.value[0].index);
 
-const headerElement = inject('headerElement');
+// 初始化 markdown-it
+const md = markdownit({
+  // 代码高亮
+  highlight: function (str, lang) {
+    return hljs.highlight(str, { language: lang }).value;
+  }
+});
+
 // 封装Markdown加载方法：接收文件路径，渲染到容器
 const loadMarkdown = (path) => {
   fetch(path)
     .then(response => {
-      if (!response.ok) throw new Error('文件加载失败');
+      if (!response.ok) throw new Error(`文件加载失败：${response.statusText}`);
       return response.text();
     })
-    .then(markdown => {
-      const html = marked.parse(markdown); // 转换为HTML
-      document.getElementById('markdown-container').innerHTML = html;
+    .then(markdownContent => {
+      // 使用 markdown-it 解析Markdown为HTML
+      const html = md.render(markdownContent);
+      // 渲染到指定容器
+      const container = document.getElementById('markdown-container');
+      if (container) {
+        container.innerHTML = html;
+      } else {
+        console.error('未找到id为 "markdown-container" 的容器');
+      }
     })
     .catch(err => console.error('加载错误：', err));
 };
@@ -83,9 +79,7 @@ onMounted(() => {
         <div>{{ menu.name }}</div>
       </el-menu-item>
     </el-menu>
-    <div class="markdown-content-container">
-        <div id="markdown-container" class="markdown-content">
-    </div>
+      <div id="markdown-container" class="markdown-body">
 
     </div>
   </div>
@@ -103,17 +97,11 @@ onMounted(() => {
         display: flex;
         height: calc(100vh - var(--header-height));
     }
-    .markdown-content {
-        flex: 1;
-        padding: 20px;
-        height: 100%;
-        overflow: auto; 
-        box-sizing: border-box;
-    }
-    .markdown-content-container {
+    .markdown-body {
         flex: 9;
-        display: flex;
         height: 100%;
         overflow: auto; 
+        padding: 20px;
+        box-sizing: border-box
     }
 </style>
