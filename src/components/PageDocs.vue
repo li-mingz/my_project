@@ -7,6 +7,19 @@ import hljs from 'highlight.js';
 import 'highlight.js/styles/default.min.css';
 // 引入 github-markdown 样式
 import 'github-markdown-css/github-markdown.css';
+// 引入 KaTeX 样式（必须，否则公式无法正常显示）
+import 'katex/dist/katex.min.css';
+// 引入 github-markdown 所需插件
+import checkbox from 'markdown-it-task-lists'; // 任务列表（- [x]）
+import abbr from 'markdown-it-abbr'; // 缩写
+import deflist from 'markdown-it-deflist'; // 定义列表
+import footnote from 'markdown-it-footnote'; // 脚注
+import ins from 'markdown-it-ins'; // 下划线（++内容++）
+import mark from 'markdown-it-mark'; // 标记（==内容==）
+import sub from 'markdown-it-sub'; // 下标（H~2~O）
+import sup from 'markdown-it-sup'; // 上标（2^10^）
+import anchor from 'markdown-it-anchor'; // 标题id生成
+import mk from 'markdown-it-katex'; // 数学公式
 
 // 动态菜单配置
 const menuList = ref([
@@ -23,8 +36,22 @@ const md = markdownit({
   // 代码高亮
   highlight: function (str, lang) {
     return hljs.highlight(str, { language: lang }).value;
-  }
-});
+  },
+  html: true,       // 允许 HTML
+  breaks: true,     // 换行符转为 <br>
+  linkify: true,    // 自动识别链接
+  typographer: true // 优化排版
+})
+.use(checkbox)
+.use(abbr)
+.use(deflist)
+.use(footnote)
+.use(ins)
+.use(mark)
+.use(sub)
+.use(sup)
+.use(anchor)
+.use(mk);
 
 // 封装Markdown加载方法：接收文件路径，渲染到容器
 const loadMarkdown = (path) => {
