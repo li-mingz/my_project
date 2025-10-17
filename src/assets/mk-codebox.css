@@ -17,4 +17,15 @@
 
 .copy-btn {
   cursor: pointer;
+  border-radius: 6px;
+  padding: 3px;
+}
+/* 悬停效果 */
+.copy-btn:hover {
+  background-color: #e0e0e0;
+}
+.copy-btn .checkmark{
+  transition: stroke-dashoffset 0.6s ease-in-out, opacity 0.3s ease-in-out;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
