@@ -1,6 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { v4 as uuidv4 } from 'uuid'
+// 导入复制插件
+import Clipboard from 'clipboard'
 // 引入 markdown-it 和 highlight.js
 import markdownit from 'markdown-it';
 import hljs from 'highlight.js';
@@ -12,6 +14,8 @@ import 'github-markdown-css/github-markdown.css';
 import 'katex/dist/katex.min.css';
 // 导入GFM警告样式
 import '@mdit/plugin-alert/style';
+// 导入 隐藏内容样式
+import '@mdit/plugin-spoiler/style';
 // 导入自定义容器样式
 import '@/assets/mk-container.css'
 // 导入自定义代码块样式
@@ -29,8 +33,11 @@ import anchor from 'markdown-it-anchor'; // 标题id生成
 import mk from 'markdown-it-katex'; // 数学公式
 import mkContainer from 'markdown-it-container'; // 自定义容器
 import { alert } from "@mdit/plugin-alert";  // GFM 警告插件
+import { spoiler } from "@mdit/plugin-spoiler"; // 隐藏内容 (!!要隐藏的内容!!)
 
 
+const copy_btn_checkmark = ref(null); // 对勾路径DOM引用
+const copy_btn_pathLength = ref(0); // 路径总长度
 
 // 动态菜单配置
 const menuList = ref([
@@ -62,7 +69,8 @@ const md = markdownit({
 .use(sub)
 .use(sup)
 .use(anchor)
-.use(mk);
+.use(mk)
+.use(spoiler);
 // 配置 alert 插件
 md.use(alert, {
   // 自定义标题渲染函数
@@ -94,13 +102,22 @@ md.renderer.rules.fence = (tokens, idx, options, env, self) => {
   const rawCode = token.content // 原始代码文本
   // 调用 highlight 处理代码，得到高亮后的 HTML
   const highlightedCode = hljs.highlight(rawCode, { language: lang }).value
-  console.log(token)
   // 自定义代码块HTML结构
   return `
     <div class="code-box">
       <div class="code-header">
         <span class="code-lang">${lang}</span>
-        <button class="copy-btn" data-clipboard-target="#${codeId}">复制</button>
+        <svg class="copy-btn" data-clipboard-target="#${codeId}" xmlns="http://www.w3.org/2000/svg" width="1.25em" height="1.25em" viewBox="0 0 128 128">
+          <path d="M76,0c2.21,0,4,1.79,4,4s1.79,4,4,4,4,1.79,4,4v4c0,2.21-1.79,4-4,4h-40c-2.21,0-4-1.79-4-4v-4c0-2.21,1.79-4,4-4s4-1.79,4-4,1.79-4,4-4h24Z"/>
+          <path d="M24,20c0-2.21,1.79-4,4-4h4c2.21,0,4-1.79,4-4s-1.79-4-4-4h-4c-6.63,0-12,5.37-12,12v96c0,6.63,5.37,12,12,12h72c6.63,0,12-5.37,12-12h0V20c0-6.63-5.37-12-12-12h-4c-2.21,0-4,1.79-4,4s1.79,4,4,4h4c2.21,0,4,1.79,4,4v96c0,2.21-1.79,4-4,4H28c-2.21,0-4-1.79-4-4V20Z"/>
+          <path
+          class="checkmark" 
+          ref="copy_btn_checkmark"
+          fill="none"
+          stroke="#000"
+          stroke-width="9"
+          d="M47.98,71.98s9.19,9.19,9.19,9.19q2.83,2.83,5.66,0l21.08-21.08"/>
+        </svg>
       </div>
       <pre id="${codeId}"><code class="language-${lang}">${highlightedCode}</code></pre>
     </div>
@@ -156,10 +173,18 @@ const loadMarkdown = (path) => {
     .then(markdownContent => {
       // 使用 markdown-it 解析Markdown为HTML
       const html = md.render(markdownContent);
+
       // 渲染到指定容器
       const container = document.getElementById('markdown-container');
       if (container) {
         container.innerHTML = html;
+
+        // 初始化所有对勾路径
+        container.querySelectorAll('.copy-btn .checkmark').forEach(c => {
+          const len = c.getTotalLength();
+          c.style.strokeDasharray = c.style.strokeDashoffset = len;
+        });
+
       } else {
         console.error('未找到id为 "markdown-container" 的容器');
       }
@@ -180,6 +205,36 @@ const handleMenuSelect = (index) => {
 // 组件挂载时加载默认菜单的Markdown
 onMounted(() => {
   loadMarkdown(menuList.value[0].mdPath);
+  // 计算路径长度
+  if (copy_btn_checkmark.value) {
+    copy_btn_pathLength.value = copy_btn_checkmark.value.getTotalLength();
+    console.log(copy_btn_pathLength)
+  }
+  // 绑定复制按钮
+  var clipboard = new Clipboard('.copy-btn');
+  // 复制成功回调
+  clipboard.on('success', e => {
+    const copyBtn = e.trigger; // 当前点击的复制按钮
+    // 复制成功动画
+    const c = copyBtn.querySelector('.copy-btn .checkmark');
+    c.style.opacity = 1;
+    c.style.strokeDashoffset = 0;
+    // 清除当前按钮已有的定时器（避免叠加）
+    if (copyBtn.dataset.timeoutId) {
+      clearTimeout(copyBtn.dataset.timeoutId);
+    }
+    // 存储新定时器到当前按钮的自定义属性
+    const timeoutId = setTimeout(() => {
+      c.style.opacity = 0;
+      c.style.strokeDashoffset = c.getTotalLength();
+      // 清除定时器标识
+      copyBtn.dataset.timeoutId = '';
+    }, 2000);
+    // 将定时器ID存入按钮的dataset，用于后续清除
+    copyBtn.dataset.timeoutId = timeoutId;
+    // 取消选择
+    e.clearSelection();
+  });
 });
 </script>
 
