@@ -280,7 +280,7 @@ onMounted(() => {
         padding: 20px;
         box-sizing: border-box;
     }
-    ::v-deep .katex .katex-mathml {
+    ::v-deep(.katex .katex-mathml) {
       position: fixed
     }
 </style>
