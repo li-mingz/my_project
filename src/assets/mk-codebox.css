@@ -1,0 +1,20 @@
+.code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 12px;
+    background: var(--bgColor-muted); /* 头部背景色 */
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    /* 分割线：关键样式 */
+    border-bottom: 1px solid #e0e0e0; /* 底部边框作为分割线 */
+}
+.code-box > pre {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+
+.copy-btn {
+  cursor: pointer;
+}

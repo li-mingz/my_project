@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { v4 as uuidv4 } from 'uuid'
 // 引入 markdown-it 和 highlight.js
 import markdownit from 'markdown-it';
 import hljs from 'highlight.js';
@@ -9,7 +10,12 @@ import 'highlight.js/styles/default.min.css';
 import 'github-markdown-css/github-markdown.css';
 // 引入 KaTeX 样式（必须，否则公式无法正常显示）
 import 'katex/dist/katex.min.css';
+// 导入GFM警告样式
+import '@mdit/plugin-alert/style';
+// 导入自定义容器样式
 import '@/assets/mk-container.css'
+// 导入自定义代码块样式
+import '@/assets/mk-codebox.css'
 // 引入 github-markdown 所需插件
 import checkbox from 'markdown-it-task-lists'; // 任务列表（- [x]）
 import abbr from 'markdown-it-abbr'; // 缩写
@@ -22,6 +28,9 @@ import sup from 'markdown-it-sup'; // 上标（2^10^）
 import anchor from 'markdown-it-anchor'; // 标题id生成
 import mk from 'markdown-it-katex'; // 数学公式
 import mkContainer from 'markdown-it-container'; // 自定义容器
+import { alert } from "@mdit/plugin-alert";  // GFM 警告插件
+
+
 
 // 动态菜单配置
 const menuList = ref([
@@ -54,6 +63,49 @@ const md = markdownit({
 .use(sup)
 .use(anchor)
 .use(mk);
+// 配置 alert 插件
+md.use(alert, {
+  // 自定义标题渲染函数
+  titleRender: (tokens, idx) => {
+    // 获取当前警告的名称（如 'warning'、'note' 等）
+    const alertName = tokens[idx].content
+    // 定义名称映射关系（原始名称 -> 自定义名称）
+    const nameMap = {
+      note: "注",
+      tip: "提示",
+      important: "重要",
+      warning: "注意",
+      caution: "警告",
+    };
+    
+    // 若未匹配到映射，则使用原始名称
+    const displayName = nameMap[alertName] || alertName;
+    
+    // 返回渲染后的标题 HTML（可根据需要调整样式类名）
+    return `<div class="alert-title">${displayName}</div>`;
+  },
+});
+
+// 自定义代码块渲染规则
+md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+  const token = tokens[idx]  // 获取代码块
+  const lang = token.info.trim() || 'text' // 获取语言类型
+  const codeId = `code-${uuidv4()}` // 生成唯一ID
+  const rawCode = token.content // 原始代码文本
+  // 调用 highlight 处理代码，得到高亮后的 HTML
+  const highlightedCode = hljs.highlight(rawCode, { language: lang }).value
+  console.log(token)
+  // 自定义代码块HTML结构
+  return `
+    <div class="code-box">
+      <div class="code-header">
+        <span class="code-lang">${lang}</span>
+        <button class="copy-btn" data-clipboard-target="#${codeId}">复制</button>
+      </div>
+      <pre id="${codeId}"><code class="language-${lang}">${highlightedCode}</code></pre>
+    </div>
+  `
+}
 
 
 /**

@@ -25,3 +25,18 @@
 当前版本：v1.0.0  
 更新时间：2023-01-01
 :::
+
+> [!note]
+> This is note text
+
+> [!important]
+> This is important text
+
+> [!tip]
+> This is tip text
+
+> [!warning]
+> This is warning text
+
+> [!caution]
+> This is caution text
