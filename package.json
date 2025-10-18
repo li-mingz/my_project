@@ -41,6 +41,7 @@
     "@vitejs/plugin-vue": "^6.0.1",
     "@vuepress/plugin-shiki": "^2.0.0-rc.114",
     "gh-pages": "^6.3.0",
+    "rollup-plugin-visualizer": "^6.0.5",
     "vite": "^7.0.6",
     "vite-plugin-vue-devtools": "^8.0.0"
   }
