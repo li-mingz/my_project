@@ -1,17 +1,19 @@
 
 <script setup>
 import Lottie from 'lottie-web';
-import { onMounted, ref } from 'vue';
+import { onMounted, provide, ref } from 'vue';
 import PageDocs from './PageDocs.vue';
 // 动画阶段
 const stage = ref(0);
 // 左上角透明度
 const background1 = ref(1)
-// 右下角角透明度
+// 右下角透明度
 const background2 = ref(1)
 // 当前活动Header选项
 const activeIndex = ref('1')
 const headerElement = ref(null)
+// 传入当前活动项
+provide("activeIndex", activeIndex)
 // 确保DOM挂载后再加载动画
 onMounted(() => {
   if (headerElement.value) {
@@ -96,10 +98,10 @@ const headerSelectItem = (key, keyPath) => {
     </el-menu>
     <!-- 内容区域：根据activeIndex切换显示 -->
     <div class="body">
-      <div v-if="activeIndex === '1'">
+      <div v-show="activeIndex === '1'">
         <h2>这是页面1的内容</h2>
       </div>
-      <div v-if="activeIndex === '2'">
+      <div v-show="activeIndex === '2'">
         <PageDocs/>
       </div>
     </div>

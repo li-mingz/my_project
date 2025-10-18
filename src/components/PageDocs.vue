@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, inject, watch } from 'vue';
 import { v4 as uuidv4 } from 'uuid'
 // 导入复制插件
 import Clipboard from 'clipboard'
@@ -35,20 +35,30 @@ import mkContainer from 'markdown-it-container'; // 自定义容器
 import { alert } from "@mdit/plugin-alert";  // GFM 警告插件
 import { spoiler } from "@mdit/plugin-spoiler"; // 隐藏内容 (!!要隐藏的内容!!)
 
-
-const copy_btn_checkmark = ref(null); // 对勾路径DOM引用
-const copy_btn_pathLength = ref(0); // 路径总长度
-
 // 动态菜单配置
 const menuList = ref([
   { index: '1', name: '简介', mdPath: './markdown/test.md' },
   { index: '2', name: '内容', mdPath: './markdown/test2.md' },
-  { index: '3', name: '注意事项', mdPath: './markdown/notice.md' }
+  { index: '3', name: '注意事项', mdPath: './markdown/test3.md' }
 ]);
 
 // 当前激活的菜单索引
 const activeIndex = ref(menuList.value[0].index);
-
+// 当前激活的页面索引
+const activePageIndex = inject('activeIndex')
+// 缓入
+const isEnter = ref(false);
+// 延迟触发类添加
+watch(activePageIndex, (newVal) => {
+  if (newVal === '2') {
+    // 延迟 0ms 让浏览器先渲染初始状态, 否则无法触发动画
+    setTimeout(() => {
+      isEnter.value = true;
+    }, 0);
+  } else {
+    isEnter.value = false;
+  }
+});
 // 初始化 markdown-it
 const md = markdownit({
   // 代码高亮
@@ -205,11 +215,6 @@ const handleMenuSelect = (index) => {
 // 组件挂载时加载默认菜单的Markdown
 onMounted(() => {
   loadMarkdown(menuList.value[0].mdPath);
-  // 计算路径长度
-  if (copy_btn_checkmark.value) {
-    copy_btn_pathLength.value = copy_btn_checkmark.value.getTotalLength();
-    console.log(copy_btn_pathLength)
-  }
   // 绑定复制按钮
   var clipboard = new Clipboard('.copy-btn');
   // 复制成功回调
@@ -242,6 +247,7 @@ onMounted(() => {
   <div class="page-body">
     <el-menu
       class="aside"
+      :class="{ enter: isEnter }"
       :default-active="activeIndex"
       @select="handleMenuSelect"
     >
@@ -254,9 +260,11 @@ onMounted(() => {
         <div>{{ menu.name }}</div>
       </el-menu-item>
     </el-menu>
-      <div id="markdown-container" class="markdown-body">
-
-    </div>
+      <div 
+        id="markdown-container" 
+        class="markdown-body"
+        :class="{ enter: isEnter }">
+      </div>
   </div>
 </template>
 
@@ -266,12 +274,17 @@ onMounted(() => {
         width: 10vw;
         height: 100%;
         overflow: auto; 
+
+        transform: translateX(-100%);
+        transition: transform 0.6s;
     }
     .page-body {
         flex: 1; 
         display: flex;
         height: calc(100vh - var(--header-height));
+        width: 100vw;
         box-sizing: border-box;
+        overflow: hidden; /* 禁止滚动 */
     }
     .markdown-body {
         flex: 9;
@@ -279,8 +292,18 @@ onMounted(() => {
         overflow: auto; 
         padding: 20px;
         box-sizing: border-box;
+
+        transform: translateX(100%);
+        transition: transform 0.3s;
     }
     ::v-deep(.katex .katex-mathml) {
       position: fixed
+    }
+    /* 页面加载后添加的激活类 */
+    .aside.enter {
+        transform: translateX(0);
+    }
+    .markdown-body.enter {
+        transform: translateX(0);
     }
 </style>
