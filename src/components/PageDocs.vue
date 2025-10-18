@@ -37,9 +37,10 @@ import { spoiler } from "@mdit/plugin-spoiler"; // 隐藏内容 (!!要隐藏的�
 
 // 动态菜单配置
 const menuList = ref([
-  { index: '1', name: '简介', mdPath: './markdown/test.md' },
+  { index: '1', name: '简介', mdPath: './markdown/about.md' },
   { index: '2', name: '内容', mdPath: './markdown/test2.md' },
-  { index: '3', name: '注意事项', mdPath: './markdown/test3.md' }
+  { index: '3', name: '测试1', mdPath: './markdown/test3.md' },
+  { index: '4', name: '测试2', mdPath: './markdown/test.md' }
 ]);
 
 // 当前激活的菜单索引
@@ -178,6 +179,7 @@ const loadMarkdown = (path) => {
   fetch(path)
     .then(response => {
       if (!response.ok) throw new Error(`文件加载失败：${response.statusText}`);
+      console.log(response);
       return response.text();
     })
     .then(markdownContent => {
