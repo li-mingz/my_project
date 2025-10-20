@@ -1,0 +1,1 @@
+import{f as e,q as n}from"./elementPlus-Cl8wwJKK.js";import"./lottie-DlKhSxva.js";const p={__name:"HomePage",setup(o){return onUnmounted(()=>{window.isOldComponentUnmounted=!0}),(t,r)=>(n(),e("p",null,"芝士首页"))}};export{p as default};
