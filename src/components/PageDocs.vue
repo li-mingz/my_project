@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onActivated, nextTick } from 'vue';
+import { ref, onMounted, onActivated, watch} from 'vue';
 import { v4 as uuidv4 } from 'uuid'
 // 导入复制插件
 import Clipboard from 'clipboard'
@@ -34,6 +34,7 @@ import mk from 'markdown-it-katex'; // 数学公式
 import mkContainer from 'markdown-it-container'; // 自定义容器
 import { alert } from "@mdit/plugin-alert";  // GFM 警告插件
 import { spoiler } from "@mdit/plugin-spoiler"; // 隐藏内容 (!!要隐藏的内容!!)
+import { useRoute } from 'vue-router';
 
 // 动态菜单配置
 const menuList = ref([
@@ -42,6 +43,18 @@ const menuList = ref([
   { index: '3', name: '测试1', mdPath: './markdown/test3.md' },
   { index: '4', name: '测试2', mdPath: './markdown/test.md' }
 ]);
+
+const route = useRoute() // 获取路由实例
+// 监听路径变化
+watch(
+  () => route.params.mdPath,
+  (newId, oldId) => {
+    if(newId){
+      console.log('mdPath 变化了：', newId);
+      loadMarkdown(newId)
+    }
+})
+
 
 // 当前激活的菜单索引
 const activeIndex = ref(menuList.value[0].index);
@@ -104,7 +117,6 @@ md.use(alert, {
 
 // 自定义代码块渲染规则
 md.renderer.rules.fence = (tokens, idx, options, env, self) => {
-  console.log(tokens);
   const token = tokens[idx]  // 获取代码块
   const lang = token.info.trim() || 'text' // 获取语言类型
   const codeId = `code-${uuidv4()}` // 生成唯一ID
@@ -177,7 +189,6 @@ const loadMarkdown = (path) => {
   fetch(path)
     .then(response => {
       if (!response.ok) throw new Error(`文件加载失败：${response.statusText}`);
-      console.log(response);
       return response.text();
     })
     .then(markdownContent => {
@@ -214,6 +225,8 @@ const handleMenuSelect = (index) => {
 
 // 组件挂载时加载默认菜单的Markdown
 onMounted(() => {
+  console.log(route.params.mdPath);
+  console.log(menuList.value[0].mdPath);
   loadMarkdown(menuList.value[0].mdPath);
   // 绑定复制按钮
   var clipboard = new Clipboard('.copy-btn');

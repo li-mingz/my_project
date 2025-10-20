@@ -1,7 +1,7 @@
 
 <script setup>
 import Lottie from 'lottie-web';
-import { onMounted, provide, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 // 动画阶段
 const stage = ref(0);
 // 左上角透明度
@@ -19,7 +19,7 @@ onMounted(() => {
     renderer: 'svg',
     loop: false,
     autoplay: true,
-    path: './lottie/IntoAnimation.json'
+    path: import.meta.env.BASE_URL+'/lottie/IntoAnimation.json'
   });
   // 开始动画序列
   stage.value = 1; // 第一阶段
@@ -62,7 +62,7 @@ onMounted(() => {
       ref="headerElement"
       mode="horizontal"
       :ellipsis="false"
-      :default-active="$route.path"
+      :default-active="$route.meta.activeMenu || $route.path"
       router
     >
       <div id="container_background"

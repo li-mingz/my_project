@@ -9,9 +9,10 @@ const routes = [
     component: () => import('@/components/HomePage.vue')
   },
   {
-    path: '/docs', // 文档页路由
+    path: '/docs:mdPath(.*)', // 文档页路由
     name: 'Docs',
-    component: () => import('@/components/PageDocs.vue')
+    component: () => import('@/components/PageDocs.vue'),
+    meta: { activeMenu: '/docs' } // 主页面菜单激活标识
   }
 ]
 
