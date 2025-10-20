@@ -2,18 +2,13 @@
 <script setup>
 import Lottie from 'lottie-web';
 import { onMounted, provide, ref } from 'vue';
-import PageDocs from './PageDocs.vue';
 // 动画阶段
 const stage = ref(0);
 // 左上角透明度
 const background1 = ref(1)
 // 右下角透明度
 const background2 = ref(1)
-// 当前活动Header选项
-const activeIndex = ref('1')
 const headerElement = ref(null)
-// 传入当前活动项
-provide("activeIndex", activeIndex)
 // 确保DOM挂载后再加载动画
 onMounted(() => {
   if (headerElement.value) {
@@ -58,9 +53,6 @@ onMounted(() => {
   }
 });
 
-const headerSelectItem = (key, keyPath) => {
-  activeIndex.value = key;
-}
 </script>
 
 <template>
@@ -70,8 +62,8 @@ const headerSelectItem = (key, keyPath) => {
       ref="headerElement"
       mode="horizontal"
       :ellipsis="false"
-      :default-active="activeIndex"
-      @select="headerSelectItem"
+      :default-active="$route.path"
+      router
     >
       <div id="container_background"
         :class="{ 'container_background_stage_3': stage >= 3 }"
@@ -82,10 +74,10 @@ const headerSelectItem = (key, keyPath) => {
           'container_box_stage_3': stage >= 3 
           }">
       </div>
-      <el-menu-item index="1">
+      <el-menu-item index="/">
         <div>首页</div>
       </el-menu-item>
-      <el-menu-item index="2">
+      <el-menu-item index="/docs">
         <div>文档</div>
       </el-menu-item>
       <div class="menu-links">
@@ -98,12 +90,15 @@ const headerSelectItem = (key, keyPath) => {
     </el-menu>
     <!-- 内容区域：根据activeIndex切换显示 -->
     <div class="body">
-      <div v-show="activeIndex === '1'">
-        <h2>这是页面1的内容</h2>
-      </div>
-      <div v-show="activeIndex === '2'">
-        <PageDocs/>
-      </div>
+      <!-- 被包裹的组件会被缓存 -->
+      <router-view v-slot="{ Component }">
+        <!-- mode="out-in" 强制旧组件完全离开后，新组件再进入，防止卸载太慢，加载太快导致切换不连贯 -->
+        <transition  mode="out-in">
+          <keep-alive>
+            <component :is="Component" />
+          </keep-alive>
+        </transition>
+      </router-view>
     </div>
   </div>
 </template>
@@ -173,11 +168,7 @@ const headerSelectItem = (key, keyPath) => {
     min-height: 100vh; /* 容器占满视口高度 */
   }
   .body {
-    flex: 1; /* 占据Header下方的全部剩余高度 */
-    display: flex;
-  }
-  .body > div {
-    flex: 1;
-    display: flex;
+    height: calc(100vh - var(--header-height)); /* 高度计算*/
+    overflow: hidden; /* 禁止滚动 */
   }
 </style>

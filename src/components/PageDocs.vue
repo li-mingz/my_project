@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, inject, watch } from 'vue';
+import { ref, onMounted, onActivated, nextTick } from 'vue';
 import { v4 as uuidv4 } from 'uuid'
 // 导入复制插件
 import Clipboard from 'clipboard'
@@ -45,21 +45,18 @@ const menuList = ref([
 
 // 当前激活的菜单索引
 const activeIndex = ref(menuList.value[0].index);
-// 当前激活的页面索引
-const activePageIndex = inject('activeIndex')
 // 缓入
 const isEnter = ref(false);
-// 延迟触发类添加
-watch(activePageIndex, (newVal) => {
-  if (newVal === '2') {
-    // 延迟 0ms 让浏览器先渲染初始状态, 否则无法触发动画
-    setTimeout(() => {
-      isEnter.value = true;
-    }, 0);
-  } else {
-    isEnter.value = false;
-  }
-});
+
+// 组件从缓存中激活时（路由切回该组件）
+onActivated(() => {
+  // 延迟让浏览器先渲染初始状态, 否则无法触发动画
+  isEnter.value = false;
+  setTimeout(() => {
+    isEnter.value = true;
+  }, 0)
+})
+
 // 初始化 markdown-it
 const md = markdownit({
   // 代码高亮
@@ -100,13 +97,14 @@ md.use(alert, {
     // 若未匹配到映射，则使用原始名称
     const displayName = nameMap[alertName] || alertName;
     
-    // 返回渲染后的标题 HTML（可根据需要调整样式类名）
-    return `<div class="alert-title">${displayName}</div>`;
+    // 返回渲染后的标题 HTML
+    return `<p class="markdown-alert-title">${displayName}</p>`;
   },
 });
 
 // 自定义代码块渲染规则
 md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+  console.log(tokens);
   const token = tokens[idx]  // 获取代码块
   const lang = token.info.trim() || 'text' // 获取语言类型
   const codeId = `code-${uuidv4()}` // 生成唯一ID
@@ -262,11 +260,12 @@ onMounted(() => {
         <div>{{ menu.name }}</div>
       </el-menu-item>
     </el-menu>
-      <div 
-        id="markdown-container" 
-        class="markdown-body"
-        :class="{ enter: isEnter }">
-      </div>
+    
+    <div 
+      id="markdown-container" 
+      class="markdown-body"
+      :class="{ enter: isEnter }">
+    </div>
   </div>
 </template>
 
@@ -294,7 +293,6 @@ onMounted(() => {
         overflow: auto; 
         padding: 20px;
         box-sizing: border-box;
-
         transform: translateX(100%);
         transition: transform 0.3s;
     }
@@ -302,10 +300,10 @@ onMounted(() => {
       position: fixed
     }
     /* 页面加载后添加的激活类 */
-    .aside.enter {
-        transform: translateX(0);
-    }
     .markdown-body.enter {
-        transform: translateX(0);
+      transform: translateX(0);
+    }
+    .aside.enter {
+      transform: translateX(0);
     }
 </style>
