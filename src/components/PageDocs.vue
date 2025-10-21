@@ -34,30 +34,20 @@ import mk from 'markdown-it-katex'; // 数学公式
 import mkContainer from 'markdown-it-container'; // 自定义容器
 import { alert } from "@mdit/plugin-alert";  // GFM 警告插件
 import { spoiler } from "@mdit/plugin-spoiler"; // 隐藏内容 (!!要隐藏的内容!!)
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 // 动态菜单配置
 const menuList = ref([
-  { index: '1', name: '简介', mdPath: './markdown/about.md' },
-  { index: '2', name: '内容', mdPath: './markdown/test2.md' },
-  { index: '3', name: '测试1', mdPath: './markdown/test3.md' },
-  { index: '4', name: '测试2', mdPath: './markdown/test.md' }
+  { name: '简介', contentPath: '/', mdPath: './markdown/about.md' },
+  { name: '内容', contentPath: '/test2', mdPath: './markdown/test2.md' },
+  { name: '测试1', contentPath: '/test3', mdPath: './markdown/test3.md' },
+  { name: '测试2', contentPath: '/test', mdPath: './markdown/test.md' }
 ]);
 
 const route = useRoute() // 获取路由实例
-// 监听路径变化
-watch(
-  () => route.params.mdPath,
-  (newId, oldId) => {
-    if(newId){
-      console.log('mdPath 变化了：', newId);
-      loadMarkdown(newId)
-    }
-})
-
-
-// 当前激活的菜单索引
-const activeIndex = ref(menuList.value[0].index);
+const router = useRouter();
+// 当前激活的菜单路径
+const activePath = ref(menuList.value[0].contentPath);
 // 缓入
 const isEnter = ref(false);
 
@@ -186,6 +176,8 @@ containerTypes.forEach(type => registerContainer(type));
 
 // 封装Markdown加载方法：接收文件路径，渲染到容器
 const loadMarkdown = (path) => {
+  // 转换路径
+  path = import.meta.env.BASE_URL+path;
   fetch(path)
     .then(response => {
       if (!response.ok) throw new Error(`文件加载失败：${response.statusText}`);
@@ -212,22 +204,53 @@ const loadMarkdown = (path) => {
     })
     .catch(err => console.error('加载错误：', err));
 };
+// 清洗路径：保留多级路径的斜杠，仅去除结尾多余斜杠和参数
+const cleanPath = (rawPath) => {
+  if (!rawPath) return '';
+  // 去除查询参数（?及后面内容）
+  const noQuery = rawPath.split('?')[0];
+  // 去除哈希（#及后面内容）
+  const noHash = noQuery.split('#')[0];
+  // 去除结尾的1个或多个斜杠
+  const trimmed = noHash.replace(/\/+$/, '');
+  // 如果清洗后为空，返回默认路径
+  return trimmed || "/";
+};
+const loadMarkdownUseContentPath = (path) => {
+  // 加载对应的 markdown 文件
+  const currentMenu = menuList.value.find(menu => menu.contentPath === path);
+  if(currentMenu){
+    loadMarkdown(currentMenu.mdPath);
+  } else {
+    console.log("无该路径： " + path)
+  }
+}
+// 监听路径变化
+watch(
+  () => route.params.mdPath,
+  (path) => {
+    // 清洗路径
+    path = cleanPath(path);
+    // 更改高亮选项
+    activePath.value = path;
+    console.log('跳转到：', path);
+    loadMarkdownUseContentPath(path);
+  },
+  { immediate: true } // 初始加载时立即执行一次
+)
+
 
 // 菜单切换事件：当菜单被选中时触发
-const handleMenuSelect = (index) => {
-  activeIndex.value = index;
-  // 找到当前选中菜单对应的md路径
-  const currentMenu = menuList.value.find(item => item.index === index);
-  if (currentMenu) {
-    loadMarkdown(currentMenu.mdPath);
-  }
+const handleMenuSelect = (path) => {
+  activePath.value = path;
+  // 跳转路由
+  router.push({
+    path: `/docs${path}`
+  });
 };
 
-// 组件挂载时加载默认菜单的Markdown
+// 组件挂载时初始化
 onMounted(() => {
-  console.log(route.params.mdPath);
-  console.log(menuList.value[0].mdPath);
-  loadMarkdown(menuList.value[0].mdPath);
   // 绑定复制按钮
   var clipboard = new Clipboard('.copy-btn');
   // 复制成功回调
@@ -261,14 +284,14 @@ onMounted(() => {
     <el-menu
       class="aside"
       :class="{ enter: isEnter }"
-      :default-active="activeIndex"
+      :default-active="activePath"
       @select="handleMenuSelect"
     >
       <!-- 动态渲染菜单项 -->
       <el-menu-item 
         v-for="menu in menuList" 
-        :key="menu.index" 
-        :index="menu.index"
+        :key="menu.contentPath" 
+        :index="menu.contentPath"
       >
         <div>{{ menu.name }}</div>
       </el-menu-item>
