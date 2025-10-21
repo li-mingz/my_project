@@ -38,7 +38,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 // 动态菜单配置
 const menuList = ref([
-  { name: '简介', contentPath: '/', mdPath: './markdown/about.md' },
+  { name: '简介', contentPath: '', mdPath: './markdown/about.md' },
   { name: '内容', contentPath: '/test2', mdPath: './markdown/test2.md' },
   { name: '测试1', contentPath: '/test3', mdPath: './markdown/test3.md' },
   { name: '测试2', contentPath: '/test', mdPath: './markdown/test.md' }
@@ -206,15 +206,13 @@ const loadMarkdown = (path) => {
 };
 // 清洗路径：保留多级路径的斜杠，仅去除结尾多余斜杠和参数
 const cleanPath = (rawPath) => {
-  if (!rawPath) return '';
   // 去除查询参数（?及后面内容）
   const noQuery = rawPath.split('?')[0];
   // 去除哈希（#及后面内容）
   const noHash = noQuery.split('#')[0];
   // 去除结尾的1个或多个斜杠
   const trimmed = noHash.replace(/\/+$/, '');
-  // 如果清洗后为空，返回默认路径
-  return trimmed || "/";
+  return trimmed;
 };
 const loadMarkdownUseContentPath = (path) => {
   // 加载对应的 markdown 文件
@@ -229,6 +227,7 @@ const loadMarkdownUseContentPath = (path) => {
 watch(
   () => route.params.mdPath,
   (path) => {
+    if(path == undefined) return;
     // 清洗路径
     path = cleanPath(path);
     // 更改高亮选项
@@ -242,6 +241,8 @@ watch(
 
 // 菜单切换事件：当菜单被选中时触发
 const handleMenuSelect = (path) => {
+  // 如果路径不变就不跳转
+  if(activePath.value == path) return;
   activePath.value = path;
   // 跳转路由
   router.push({
