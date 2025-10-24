@@ -1,4 +1,5 @@
 <script setup>
+import PageDocsAside from './PageDocsAside.vue';
 import { ref, onMounted, onActivated, watch} from 'vue';
 import { v4 as uuidv4 } from 'uuid'
 // 导入复制插件
@@ -47,7 +48,11 @@ const menuList = ref([
 const route = useRoute() // 获取路由实例
 const router = useRouter();
 // 当前激活的菜单路径
-const activePath = ref(menuList.value[0].contentPath);
+// const activePath = ref(menuList.value[0].contentPath);
+
+
+const activePath = ref("/");
+
 // 缓入
 const isEnter = ref(false);
 
@@ -289,13 +294,14 @@ onMounted(() => {
       @select="handleMenuSelect"
     >
       <!-- 动态渲染菜单项 -->
-      <el-menu-item 
+      <!-- <el-menu-item 
         v-for="menu in menuList" 
         :key="menu.contentPath" 
         :index="menu.contentPath"
       >
         <div>{{ menu.name }}</div>
-      </el-menu-item>
+      </el-menu-item> -->
+      <PageDocsAside :path="activePath" />
     </el-menu>
     
     <div 
