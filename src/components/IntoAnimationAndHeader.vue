@@ -1,14 +1,17 @@
 
 <script setup>
 import Lottie from 'lottie-web';
-import { onMounted, ref } from 'vue';
+import { onMounted, provide, ref } from 'vue';
 // 动画阶段
 const stage = ref(0);
 // 左上角透明度
-const background1 = ref(1)
+const background1 = ref(1);
 // 右下角透明度
-const background2 = ref(1)
-const headerElement = ref(null)
+const background2 = ref(1);
+const headerElement = ref(null);
+// 导航栏 文档 的index
+const docsPath = ref("/docs");
+provide("docsPath", docsPath);
 // 确保DOM挂载后再加载动画
 onMounted(() => {
   if (headerElement.value) {
@@ -62,7 +65,7 @@ onMounted(() => {
       ref="headerElement"
       mode="horizontal"
       :ellipsis="false"
-      :default-active="$route.meta.activeMenu || $route.path"
+      :default-active="$route.path"
       router
     >
       <div id="container_background"
@@ -77,7 +80,7 @@ onMounted(() => {
       <el-menu-item index="/">
         <div>首页</div>
       </el-menu-item>
-      <el-menu-item index="/docs">
+      <el-menu-item :index="docsPath">
         <div>文档</div>
       </el-menu-item>
       <div class="menu-links">

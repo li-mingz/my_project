@@ -38,7 +38,9 @@ import { spoiler } from "@mdit/plugin-spoiler"; // 隐藏内容 (!!要隐藏的�
 import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute() // 获取路由实例
-const router = useRouter();
+
+// 记录上一个markdown文件路径，避免重复加载
+const lastMarkdownPath = ref("");
 
 // 缓入
 const isEnter = ref(false);
@@ -215,8 +217,11 @@ watch(
     if(path == "" || path == "/") return;
     // 清洗路径
     path = cleanPath(path);
-    console.log(import.meta.env.BASE_URL+"markdown"+path+".md");
-    loadMarkdown(import.meta.env.BASE_URL+"markdown"+path+".md");
+    path = import.meta.env.BASE_URL+"markdown"+path+".md";
+    if(lastMarkdownPath.value == path) return;
+    console.log(path);
+    loadMarkdown(path);
+    lastMarkdownPath.value = path;
   },
   { immediate: true } // 初始加载时立即执行一次
 )

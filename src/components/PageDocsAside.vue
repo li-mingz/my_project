@@ -2,12 +2,15 @@
 import markdownit from 'markdown-it';
 import 'github-markdown-css/github-markdown.css';
 import '@mdit/plugin-spoiler/style';
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, inject } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { v4 as uuidv4 } from 'uuid'
 
 const router = useRouter();
 const route = useRoute()
+
+// 导航栏 文档 的index
+const docsPath = inject("docsPath");
 
 // 当前激活的菜单路径
 const activePath = ref("");
@@ -204,13 +207,14 @@ watch(
   (path) => {
     // 在主页面下时
     if(path == route.meta.activeMenu){
-      console.log(activePath);
       jumpToFirstValidPath();
     }
-    else
+    // 在文档 导航栏下时
+    else if(route.meta.activeMenu == "/docs")
     {
       // 更改高亮选项
       activePath.value = path;
+      docsPath.value = path;
     }
   },
   { immediate: true } // 初始加载时立即执行一次
