@@ -37,21 +37,8 @@ import { alert } from "@mdit/plugin-alert";  // GFM 警告插件
 import { spoiler } from "@mdit/plugin-spoiler"; // 隐藏内容 (!!要隐藏的内容!!)
 import { useRoute, useRouter } from 'vue-router';
 
-// 动态菜单配置
-const menuList = ref([
-  { name: '简介', contentPath: '', mdPath: './markdown/about.md' },
-  { name: '内容', contentPath: '/test2', mdPath: './markdown/test2.md' },
-  { name: '测试1', contentPath: '/test3', mdPath: './markdown/test3.md' },
-  { name: '测试2', contentPath: '/test', mdPath: './markdown/test.md' }
-]);
-
 const route = useRoute() // 获取路由实例
 const router = useRouter();
-// 当前激活的菜单路径
-// const activePath = ref(menuList.value[0].contentPath);
-
-
-const activePath = ref("/");
 
 // 缓入
 const isEnter = ref(false);
@@ -181,8 +168,6 @@ containerTypes.forEach(type => registerContainer(type));
 
 // 封装Markdown加载方法：接收文件路径，渲染到容器
 const loadMarkdown = (path) => {
-  // 转换路径
-  path = import.meta.env.BASE_URL+path;
   fetch(path)
     .then(response => {
       if (!response.ok) throw new Error(`文件加载失败：${response.statusText}`);
@@ -209,6 +194,7 @@ const loadMarkdown = (path) => {
     })
     .catch(err => console.error('加载错误：', err));
 };
+
 // 清洗路径：保留多级路径的斜杠，仅去除结尾多余斜杠和参数
 const cleanPath = (rawPath) => {
   // 去除查询参数（?及后面内容）
@@ -219,41 +205,21 @@ const cleanPath = (rawPath) => {
   const trimmed = noHash.replace(/\/+$/, '');
   return trimmed;
 };
-const loadMarkdownUseContentPath = (path) => {
-  // 加载对应的 markdown 文件
-  const currentMenu = menuList.value.find(menu => menu.contentPath === path);
-  if(currentMenu){
-    loadMarkdown(currentMenu.mdPath);
-  } else {
-    console.log("无该路径： " + path)
-  }
-}
+
 // 监听路径变化
 watch(
   () => route.params.mdPath,
   (path) => {
     if(path == undefined) return;
+    // 当路径为根节点时不加载，等待跳转
+    if(path == "" || path == "/") return;
     // 清洗路径
     path = cleanPath(path);
-    // 更改高亮选项
-    activePath.value = path;
-    console.log('跳转到：', path);
-    loadMarkdownUseContentPath(path);
+    console.log(import.meta.env.BASE_URL+"markdown"+path+".md");
+    loadMarkdown(import.meta.env.BASE_URL+"markdown"+path+".md");
   },
   { immediate: true } // 初始加载时立即执行一次
 )
-
-
-// 菜单切换事件：当菜单被选中时触发
-const handleMenuSelect = (path) => {
-  // 如果路径不变就不跳转
-  if(activePath.value == path) return;
-  activePath.value = path;
-  // 跳转路由
-  router.push({
-    path: `/docs${path}`
-  });
-};
 
 // 组件挂载时初始化
 onMounted(() => {
@@ -287,22 +253,11 @@ onMounted(() => {
 
 <template>
   <div class="page-body">
-    <el-menu
+    <div
       class="aside"
-      :class="{ enter: isEnter }"
-      :default-active="activePath"
-      @select="handleMenuSelect"
-    >
-      <!-- 动态渲染菜单项 -->
-      <!-- <el-menu-item 
-        v-for="menu in menuList" 
-        :key="menu.contentPath" 
-        :index="menu.contentPath"
-      >
-        <div>{{ menu.name }}</div>
-      </el-menu-item> -->
-      <PageDocsAside :path="activePath" />
-    </el-menu>
+      :class="{ enter: isEnter }">
+      <PageDocsAside />
+    </div>
     
     <div 
       id="markdown-container" 
