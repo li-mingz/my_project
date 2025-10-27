@@ -1,0 +1,1 @@
+import{_ as e}from"./index-DwZf9B3Y.js";import{f as o,q as r}from"./elementPlus-C_d23nRw.js";import"./lottie-DlKhSxva.js";const t={};function c(n,a){return r(),o("p",null,"芝士首页")}const m=e(t,[["render",c]]);export{m as default};
