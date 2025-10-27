@@ -9,8 +9,6 @@ import { v4 as uuidv4 } from 'uuid'
 const router = useRouter();
 const route = useRoute()
 
-// 当首次加载时路径为根页面，标记菜单的第一项为激活状态
-const firstItemActive = ref(false);
 // 当前激活的菜单路径
 const activePath = ref("");
 // 最终生成的层级菜单数据
@@ -186,15 +184,16 @@ const getFirstValidPath = (items) => {
 };
 // 跳转路径到菜单第一项
 const jumpToFirstValidPath = () => {
-  if (firstItemActive.value && menuItems.value.length > 0) {
-    firstItemActive.value = false
+  if (menuItems.value.length > 0) {
     const firstPath = getFirstValidPath(menuItems.value);
-    if (firstPath) {
+    // 避免重复跳转
+    if (firstPath && firstPath !== router.currentRoute.value.path) {
       // 跳转路径到菜单第一项
       router.push(firstPath);
     }
   }
 }
+
 onMounted(() => {
   loadMarkdown("./SUMMARY.md");
 });
@@ -205,30 +204,33 @@ watch(
   (path) => {
     // 在主页面下时
     if(path == route.meta.activeMenu){
-      // 标记第一个菜单项激活
-      firstItemActive.value = true;
+      console.log(activePath);
+      jumpToFirstValidPath();
     }
-    // 更改高亮选项
-    activePath.value = path;
+    else
+    {
+      // 更改高亮选项
+      activePath.value = path;
+    }
   },
   { immediate: true } // 初始加载时立即执行一次
 )
 // 监听菜单数据变化
 watch(
   () => menuItems.value,
-  (newItems) => {
-    jumpToFirstValidPath();
+  () => {
+    var path = router.currentRoute.value.path;
+    // 在主页面下时
+    if(path == route.meta.activeMenu){
+      jumpToFirstValidPath();
+    }else{
+      // 更改高亮选项
+      activePath.value = path;
+    }
   },
   { deep: true, immediate: true } // 深度监听，初始加载时执行
 );
-// 监听导航栏跳转
-watch(
-  () => route.meta.activeMenu,
-  (activeMenu) => {
-    if(activeMenu == '/docs') jumpToFirstValidPath();
-  },
-  { immediate: true }
-);
+
 </script>
 
 <template>
